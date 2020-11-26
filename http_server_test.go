@@ -10,7 +10,7 @@ func Test_handleRequest(t *testing.T) {
 
 	t.Run("responde com hello world", func(t *testing.T) {
 		recoder := httptest.NewRecorder()
-		reqTest := httptest.NewRequest("GET", "/", nil)
+		reqTest := httptest.NewRequest("GET", "/?key=test", nil)
 
 		handleRequest(recoder, reqTest)
 
@@ -24,8 +24,8 @@ func Test_handleRequest(t *testing.T) {
 			t.Errorf("response Body with error")
 		}
 
-		if string(bodyTest) != "Hello World!" {
-			t.Errorf("Waiting %s, receive %s", "Hello World!", string(bodyTest))
+		if string(bodyTest) != "test" {
+			t.Errorf("Waiting %s, receive %s", "test", string(bodyTest))
 		}
 	})
 }
