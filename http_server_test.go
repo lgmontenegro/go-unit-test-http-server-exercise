@@ -99,4 +99,26 @@ func Test_authBasic(t *testing.T) {
 			t.Errorf("Waiting %d, receive %d", 401, recoder.Result().StatusCode)
 		}
 	})
+
+	t.Run("test cookie", func(t *testing.T) {
+
+		recoder := httptest.NewRecorder()
+		reqTest := httptest.NewRequest("GET", "/auth", nil)
+		reqTest.Header.Set("Authorization", "Basic YWxhZGRpbjpvcGVuc2VzYW1lCg==")
+
+		authBasic(recoder, reqTest)
+
+		if recoder.Result().StatusCode != 200 {
+			t.Errorf("Waiting %d, receive %d", 200, recoder.Result().StatusCode)
+		}
+
+		cookies := recoder.Result().Cookies()
+		if len(cookies) != 1 {
+			t.Errorf("should receive only one cookie")
+		}
+
+		if cookies[0].Name != "user" || cookies[0].Value != "aladdin" {
+			t.Errorf("cookies are wrong")
+		}
+	})
 }

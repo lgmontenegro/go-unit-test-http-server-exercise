@@ -70,5 +70,11 @@ func authBasic(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cookie := http.Cookie{
+		Name:  "user",
+		Value: "aladdin",
+	}
+
+	http.SetCookie(w, &cookie)
 	w.Write([]byte("OK"))
 }
