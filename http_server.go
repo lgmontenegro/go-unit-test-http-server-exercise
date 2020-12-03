@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/base64"
+	"fmt"
 	"net/http"
+	"strings"
 )
 
 func main() {
@@ -9,6 +12,7 @@ func main() {
 	r := http.NewServeMux()
 	r.HandleFunc("/", handleRequest)
 	r.HandleFunc("/formResult", handleResponse)
+	r.HandleFunc("/auth", authBasic)
 	http.ListenAndServe(":9090", r)
 }
 
@@ -37,4 +41,34 @@ func handleResponse(w http.ResponseWriter, r *http.Request) {
 
 	firstName := r.PostForm.Get("first_name")
 	w.Write([]byte(firstName))
+}
+
+func authBasic(w http.ResponseWriter, r *http.Request) {
+	authBase64 := r.Header.Get("Authorization")
+	tempSlice := strings.Split(string(authBase64), " ")
+	if len(tempSlice) != 2 {
+		w.WriteHeader(400)
+		return
+	}
+
+	encoding := base64.StdEncoding
+	decodedAuth, err := encoding.DecodeString(string(tempSlice[1]))
+	if err != nil {
+		fmt.Errorf("%v", err)
+		w.WriteHeader(400)
+		return
+	}
+
+	authString := strings.Split(string(decodedAuth), ":")
+	if len(authString) != 2 {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	if authString[0] != "aladdin" && authString[1] != "opensesame" {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	w.Write([]byte("OK"))
 }
